@@ -153,8 +153,8 @@ class image_converter:
         # when camera 2 is using, the targets x and z coordinates can be found
 
         # get the  2 coordinates found by camera image for both targets
-        sphere_pos = self.detect_target(image,True)
-        box_pos = self.detect_target(image,False)
+        tar1_pos = self.detect_target(image,True)
+        tar2_pos = self.detect_target(image,False)
 
         if cam1:
             index1 = 1 # get y coordinates using camera1
@@ -163,31 +163,31 @@ class image_converter:
             index1 = 0 # get x coordinates using camera2
             index2 = 3 # get z coordinates using camera2
 
-        if sphere_pos is None:
+        if tar1_pos is None:
             # when the target can not be viewd clearly, use previous position of the target
-            sphere_pos = np.array([self.target1_history[index1], self.target1_history[index2]])
+            tar1_pos = np.array([self.target1_history[index1], self.target1_history[index2]])
         else:
-            self.target1_history[index1] = sphere_pos[0]
-            self.target1_history[index2] = sphere_pos[1]
+            self.target1_history[index1] = tar1_pos[0]
+            self.target1_history[index2] = tar1_pos[1]
 
-        if box_pos is None:
+        if tar2_pos is None:
             # when the target can not be viewd clearly, use previous position of the target
-            box_pos = np.array([self.target2_history[index1], self.target2_history[index2]])
+            tar2_pos = np.array([self.target2_history[index1], self.target2_history[index2]])
         else:
-            self.target2_history[index1] = box_pos[0]
-            self.target2_history[index2] = box_pos[1]
+            self.target2_history[index1] = tar2_pos[0]
+            self.target2_history[index2] = tar2_pos[1]
 
         # get conversion ratio from pixel to meters
         a = self.pixel2meter(image)
         # get the base coordinates by using immobile yellow joint
         center = a * self.detect_yellow(image)
         # convert pixel coordinates to meter coordinates
-        sphere_pos = center - a * sphere_pos
-        box_pos = center - a * box_pos
+        tar1_pos = center - a * tar1_pos
+        tar2_pos = center - a * tar2_pos
         # get the position of end effector for the control problem
         end_effector_pos = center - a * self.detect_red(image)
 
-        return sphere_pos, box_pos, end_effector_pos
+        return tar1_pos, tar2_pos, end_effector_pos
 
 
     def image1_callback(self, data):
@@ -198,13 +198,13 @@ class image_converter:
             print(e)
 
         # using image data to find y and z coordinates of targets and end effector
-        sphere_pos, box_pos , end_effector_pos= self.detect_target_pos(self.cv_image1,cam1=True)
+        tar1_pos, tar2_pos , end_effector_pos= self.detect_target_pos(self.cv_image1,cam1=True)
 
         # publish the y coordinates and z coordiantes of the sphere target and square target
-        self.target1_y_pos.data = -sphere_pos[0]
-        self.target1_z_pos.data = sphere_pos[1]
-        self.target2_y_pos.data = -box_pos[0]
-        self.target2_z_pos.data = box_pos[1]
+        self.target1_y_pos.data = -tar1_pos[0]
+        self.target1_z_pos.data = tar1_pos[1]
+        self.target2_y_pos.data = -tar2_pos[0]
+        self.target2_z_pos.data = tar2_pos[1]
 
         self.target1_y_pub.publish(self.target1_y_pos)
         self.target1_z_pub.publish(self.target1_z_pos)
@@ -229,11 +229,11 @@ class image_converter:
             print(e)
 
         # using image data to find x and z coordinates of targets and end effector
-        sphere_pos, box_pos, end_effector_pos = self.detect_target_pos(self.cv_image2,cam1=False)
+        tar1_pos, tar2_pos, end_effector_pos = self.detect_target_pos(self.cv_image2,cam1=False)
 
         # publish the x coordinates of the sphere target and square target
-        self.target1_x_pos.data = -sphere_pos[0]
-        self.target2_x_pos.data = -box_pos[0]
+        self.target1_x_pos.data = -tar1_pos[0]
+        self.target2_x_pos.data = -tar2_pos[0]
 
         self.target1_x_pub.publish(self.target1_x_pos)
         self.target2x_position_pub.publish(self.target2_x_pos)
