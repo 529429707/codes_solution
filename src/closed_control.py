@@ -153,7 +153,7 @@ class image_converter:
         self.error_d = ((pos_d - pos) - self.error) / (dt + 1e-11)
         # estimate error
         self.error = pos_d - pos
-        print(self.error)
+
         J_inv = np.linalg.pinv(self.Jacobian_Matrix(joint1, joint2, joint3, joint4))
         dq_d = np.dot(J_inv, (np.dot(K_d, self.error_d.transpose()) + np.dot(K_p,
                                                                       self.error.transpose())))
@@ -236,4 +236,3 @@ def main(args):
 # run the code if the node is called
 if __name__ == '__main__':
     main(sys.argv)
-
