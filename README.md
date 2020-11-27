@@ -1,4 +1,8 @@
 # IVR_CW
+Sorry that we didn't read the submission instruction carefully until we reach the end of the coursework pdf
+We didn't keep our code on Github and commit until we finished everything.
+So we have kept the code solutions to all questions so that you can check each. 
+
 Please run image1.py, image2.py, image_processing.py to see 
 results for Q2.1
 
